@@ -11,3 +11,13 @@
 - 2.3 - Adicionar dependências "spring-ai-bom" / "starter-model-openai" 
 - 2.4 - Testar aplicação \
 --Feito Commit--
+### Seção 3 - Explorando o ChatModel e Modelos de Linguagem
+- 3.1 - Desenvolver testes de integração, adicionar em "run/debug configurations" gradle para testes em "edit configuration templates" e criar variável
+- 3.2 - Criar primeiro teste classe "OpenAiChatModelIT"
+- 3.3 - Adicionar configurações no properties "model" / "temperature" / "response-format"
+- 3.4 - Dar run na classe "OpenAiChatModellt" dentro de "test" e fazer o teste
+- 3.5 - Adicionar dependência "starter-web"
+- 3.6 - Criar classe "ChatModelController"
+- 3.7 - Testar aplicação GET http://localhost:8080/api/chat-model?prompt=Oi
+- 3.8 - Excluir configuração "temperature" de properties \
+--Feito Commit--
