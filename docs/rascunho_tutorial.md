@@ -21,3 +21,12 @@
 - 3.7 - Testar aplicação GET http://localhost:8080/api/chat-model?prompt=Oi
 - 3.8 - Excluir configuração "temperature" de properties \
 --Feito Commit--
+### Seção 4 - ChatClient:Fluência e Contexto no Spring AI
+- 4.1 - Criar classe "OpenAiChatClientIT"
+- 4.2 - Testar classe criada
+- 4.3 - Criar classe "ChatClientController"
+- 4.4 - Testar aplicação
+- 4.5 - Alterar classe "DioProjetoFinalBootcampSantanderJavaAiBackend2026Application", metodo "chatChatClient"
+- 4.6 - Alterar classe "ChatClientController"
+- 4.7 - Testar aplicação http://localhost:8080/api/chat?prompt=BomDia \
+--Feito Commit--
