@@ -30,3 +30,9 @@
 - 4.6 - Alterar classe "ChatClientController"
 - 4.7 - Testar aplicação http://localhost:8080/api/chat?prompt=BomDia \
 --Feito Commit--
+### Seção 5 - Tool Calling:Executando Funções Reais com IA
+5.1 - Criar classe "ToolCallingIT"
+5.2 - Testar aplicação classe de teste
+5.3 - Adicionar config "logging.level" em properties
+5.4 - Testar aplicação classe de teste \
+--Feito Commit--
