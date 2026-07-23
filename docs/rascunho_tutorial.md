@@ -31,8 +31,19 @@
 - 4.7 - Testar aplicação http://localhost:8080/api/chat?prompt=BomDia \
 --Feito Commit--
 ### Seção 5 - Tool Calling:Executando Funções Reais com IA
-5.1 - Criar classe "ToolCallingIT"
-5.2 - Testar aplicação classe de teste
-5.3 - Adicionar config "logging.level" em properties
-5.4 - Testar aplicação classe de teste \
+- 5.1 - Criar classe "ToolCallingIT"
+- 5.2 - Testar aplicação classe de teste
+- 5.3 - Adicionar config "logging.level" em properties
+- 5.4 - Testar aplicação classe de teste \
+--Feito Commit--
+### Seção 6 - Transcription API:Transformando Audio em Texto
+- 6.1 - Criar pasta audio e colocar os arquivos dentro
+- 6.2 - Criar classe "OpenAiTranscriptionModelIT"
+- 6.3 - Adicionar anotações na classe "main" de test
+- 6.4 - Configurações no application.properties - "whisper-1" / "language" / "temperature" / "response-format" / "prompt"
+- 6.5 - Fazer teste da classe "OpenAiTranscriptionModelIT"
+- 6.6 - Criar classe "TranscriptionController"
+- 6.7 - Adicionar config. "transcription=openai"
+- 6.8 - Testar classe "TranscriptionController"
+- 6.8 - Testar um POST http://localhost:8080/api/transcribe \
 --Feito Commit--
