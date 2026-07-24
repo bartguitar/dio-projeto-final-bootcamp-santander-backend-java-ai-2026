@@ -4,7 +4,9 @@ import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.output.TransactionOutput;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.Transaction;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.TransactionRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PersistTransactionUseCase {
     private final TransactionRepository transactionRepository;
 

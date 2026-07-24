@@ -59,3 +59,14 @@
 - 8.2 - Criar Primeiro as classes de domínio
 - 8.3 - Criar serviços pacote application
 --Feito Commit--
+### Seção 9 - Persistência e Infraestrutura:Configurando o Banco com Docker
+- 9.1 - Criar parte de banco de dados, arquivo "compose.yml"
+- 9.2 - Adicionar dependência "docker-compose"
+- 9.3 - Testar aplicação se subiu o docker
+- 9.4 - Adicionar dependência do "spring-jpa" e "connector-j"
+- 9.5 - Testar aplicação
+- 9.6 - Criar classes pacotes e classes de entity e repository
+- 9.7 - Fazer anotações na classe "PersistTransactionUseCase"
+- 9.8 - Adicionar config. no properties do jpa "ddl-auto" e "show-sql"
+- 9.9 - Testar aplicação se subiu banco de dados
+--Feito Commit--
