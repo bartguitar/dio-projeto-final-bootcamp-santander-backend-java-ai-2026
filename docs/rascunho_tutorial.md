@@ -68,5 +68,10 @@
 - 9.6 - Criar classes pacotes e classes de entity e repository
 - 9.7 - Fazer anotações na classe "PersistTransactionUseCase"
 - 9.8 - Adicionar config. no properties do jpa "ddl-auto" e "show-sql"
-- 9.9 - Testar aplicação se subiu banco de dados
+- 9.9 - Testar aplicação se subiu banco de dados \
+--Feito Commit--
+### Seção 10 - Exposição REST: Implementando o TransactionController
+10.1 - Implementar classes e pacotes em "http"
+10.2 - Criar classe "ListTransactionsByCategoryUseCase"
+10.3 - Testar aplicação com todos endpoints, testar GET E POST \
 --Feito Commit--
