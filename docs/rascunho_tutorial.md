@@ -47,3 +47,10 @@
 - 6.8 - Testar classe "TranscriptionController"
 - 6.8 - Testar um POST http://localhost:8080/api/transcribe \
 --Feito Commit--
+### Seção 7 - Speech API:Sintetizando voz com TTS
+- 7.1 - Criar classe "OpenAiSpeechModelIT"
+- 7.2 - Adicionar dependências "audio-speech....."
+- 7.3 - Testar classe de teste criada
+- 7.4 - Criar classe "TextToSpeechController"
+- 7.5 - Testar aplicação http://localhost:8080/api/sinthesize \
+--Feito Commit--
