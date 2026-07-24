@@ -54,3 +54,8 @@
 - 7.4 - Criar classe "TextToSpeechController"
 - 7.5 - Testar aplicação http://localhost:8080/api/sinthesize \
 --Feito Commit--
+### Seção 8 - Integração do Assistente:Orquestrando o fluxo de Budget
+- 8.1 - Criar pacotes e classes DDD
+- 8.2 - Criar Primeiro as classes de domínio
+- 8.3 - Criar serviços pacote application
+--Feito Commit--
