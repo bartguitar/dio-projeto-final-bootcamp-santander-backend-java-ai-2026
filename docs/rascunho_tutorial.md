@@ -71,7 +71,16 @@
 - 9.9 - Testar aplicação se subiu banco de dados \
 --Feito Commit--
 ### Seção 10 - Exposição REST: Implementando o TransactionController
-10.1 - Implementar classes e pacotes em "http"
-10.2 - Criar classe "ListTransactionsByCategoryUseCase"
-10.3 - Testar aplicação com todos endpoints, testar GET E POST \
+- 10.1 - Implementar classes e pacotes em "http"
+- 10.2 - Criar classe "ListTransactionsByCategoryUseCase"
+- 10.3 - Testar aplicação com todos endpoints, testar GET E POST \
+--Feito Commit--
+### Seção 11 - Endpoint de Transcrição:Integrando Audio ao Controller
+- 11.1 - Criar endpoint "/ai"
+- 11.2 - Adicionar e alterar classe "TransactionController"
+- 11.3 - Fazer anotação @tool em "persisttransaction...." e "ListTransactions...."
+- 11.4 - Criar pacote "prompts" e arquivos
+- 11.5 - Testar aplicação com os endpoints
+- 11.6 - Injetar variavel "textToSpeechModel" em controller
+- 11.7 - Teste completo da aplicação \
 --Feito Commit--
