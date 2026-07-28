@@ -202,6 +202,45 @@ O DDL é gerenciado automaticamente pelo Hibernate (`spring.jpa.hibernate.ddl-au
 
 O comportamento do assistente é orientado por um *system prompt* (`prompts/system-message.st`) que instrui o LLM a atuar como um assistente financeiro, extraindo dados de transações do texto transcrito e escolhendo a categoria mais adequada ao contexto antes de invocar as *tools* disponíveis.
 
+## 🚀 Melhorias implementadas
+
+Esta seção documenta as evoluções feitas sobre o projeto base do bootcamp, à medida que são implementadas.
+
+### Melhoria A — Novos tipos de consulta financeira
+
+Adiciona a possibilidade de consultar o **total gasto** em uma categoria durante um mês específico, tanto via REST quanto por voz.
+
+**O que mudou:**
+
+- **A.2 — Rastreio temporal:** a entidade `Transaction` passou a registrar `createdAt` (data/hora de criação), habilitando consultas por período. Persistido automaticamente no MySQL via `ddl-auto=update`.
+- **A.1 — Endpoint de somatório:** novo endpoint `GET /transactions/summary`, que retorna o total gasto e a quantidade de transações de uma categoria em um mês.
+- **A.3 — Tool de IA:** o assistente de voz agora pode responder perguntas como *"quanto eu gastei em farmácia esse mês?"* diretamente, sem precisar consultar o endpoint manualmente.
+
+#### `GET /transactions/summary`
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `category` | `GROCERIES` \| `PHARMA` \| `AUTO` | Categoria a ser somada |
+| `month` | `String` (formato `AAAA-MM`) | Mês de referência |
+
+```bash
+curl "http://localhost:8080/transactions/summary?category=GROCERIES&month=2026-07"
+```
+
+**Resposta:**
+```json
+{
+  "category": "GROCERIES",
+  "month": "2026-07",
+  "total": 120.00,
+  "count": 4
+}
+```
+
+#### Tool `sum-transactions-by-category`
+
+Registrada no `ChatClient` do assistente, junto às demais ferramentas (`persist-transaction`, `list-transactions-by-category`). Basta enviar um áudio perguntando o total gasto em uma categoria/mês, via `POST /transactions/ai`, que o assistente decide sozinho quando usá-la — em vez de listar as transações uma a uma.
+
 ## 🎓 Aprendizados do módulo
 
 Este projeto foi construído de forma incremental ao longo do bootcamp, cobrindo:
