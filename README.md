@@ -241,6 +241,15 @@ curl "http://localhost:8080/transactions/summary?category=GROCERIES&month=2026-0
 
 Registrada no `ChatClient` do assistente, junto às demais ferramentas (`persist-transaction`, `list-transactions-by-category`). Basta enviar um áudio perguntando o total gasto em uma categoria/mês, via `POST /transactions/ai`, que o assistente decide sozinho quando usá-la — em vez de listar as transações uma a uma.
 
+### Melhoria B — Melhorar as respostas da IA
+
+Ajustes de configuração (sem novos endpoints) para tornar as respostas do assistente mais previsíveis e adequadas ao formato de áudio.
+
+**O que mudou:**
+
+- **B.1 — Prompt estruturado:** o `system-message.st` passou a orientar explicitamente o formato da resposta final do assistente, com exemplos literais de frase para cada tipo de ação (registro e consulta), além de uma instrução para nunca inventar valores ou categorias quando a fala do usuário for ambígua.
+- **B.2 — Temperature baixa:** adicionada a configuração `spring.ai.openai.chat.options.temperature=0.2`, reduzindo a variação criativa nas respostas — importante para um
+
 ## 🎓 Aprendizados do módulo
 
 Este projeto foi construído de forma incremental ao longo do bootcamp, cobrindo:

@@ -85,8 +85,7 @@
 - 11.7 - Teste completo da aplicação \
 --Feito Commit--
 ### MELHORIAS
-#### Melhoria A:
-##### Novos tipos de consulta financeira
+#### Melhoria A: Novos tipos de consulta financeira
 **A.1 - Somatório por categoria/período — GET /transactions/summary?category=GROCERIES&month=2026-07 retornando total gasto. É só um SUM novo no TransactionRepository + endpoint. (pequeno)** \
 **A.2 - Listar por intervalo de valor ou data — ex. "quanto gastei essa semana?" — exige adicionar createdAt na entidade (hoje não existe). (pequeno/médio)** \
 **A.3 - Nova tool sumTransactionsByCategory — assim o assistente de voz responde "você gastou R$120 em farmácia este mês" sem você perguntar via REST. (pequeno, reaproveita o padrão que já existe em ListTransactionsByCategoryUseCase)** 
@@ -101,4 +100,10 @@
 - 9 - Colocar endpoint "/summary" no "TransactionController"
 - 10 - Nova tool "sum-transactions-by-category", anotar o método execute do SumTransactionsByCategoryUseCase com @Tool
 - 11 - Atualizar o "system-message.st" \
+--Feito Commit--
+#### Melhoria B: Melhorar as respostas da IA
+**B.1 - Acrescentar uma seção no prompt orientando o formato da resposta final, separando por tipo de ação**
+**B.2 - Adicionar config do chat "temperature" para que as respostas fiquem mais padronizadas, previsíveis e "enxutas"**
+- 1 - Reescrever o "system-message.st"
+- 2 - Adicionar config "spring.ai.openai.chat.options.temperature=0.2" \
 --Feito Commit--
