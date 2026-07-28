@@ -336,6 +336,55 @@ curl -i -X POST http://localhost:8080/transactions -H "Content-Type: application
 
 Essa melhoria não adiciona endpoints novos — o efeito é observado como uma camada de proteção sobre os endpoints já existentes (`POST /transactions`, `DELETE /transactions/{id}`, `PATCH /transactions/{id}/category`) e sobre o fluxo de voz (`POST /transactions/ai`).
 
+### Melhoria E — Melhorar os endpoints REST
+
+Refina os endpoints de listagem e criação para seguir boas práticas REST, sem adicionar funcionalidade de negócio nova.
+
+**O que mudou:**
+
+- **E.1 — Paginação:** os endpoints `GET /transactions/{category}` e `GET /transactions?start&end` deixaram de retornar todas as transações de uma vez e passaram a aceitar `page` e `size` na query string, devolvendo um `Page` com metadados (total de itens, total de páginas, etc.). A tool de IA correspondente (`list-transactions-by-period`) continua listando sem exigir paginação do LLM, usando internamente a primeira página com tamanho fixo.
+- **E.2 — `Location` header:** `POST /transactions` passou a retornar o header `Location`, apontando para a URL do recurso recém-criado, seguindo a convenção REST para respostas `201 Created`.
+- **E.3 — Ordenação:** os mesmos endpoints paginados aceitam o parâmetro `sort`, permitindo ordenar o resultado por qualquer campo (ex.: valor, data de criação), inclusive com múltiplos critérios.
+
+#### `GET /transactions/{category}`
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `page` | `int` (padrão `0`) | Número da página |
+| `size` | `int` (padrão `20`) | Quantidade de itens por página |
+| `sort` | `String` | Campo e direção de ordenação (ex.: `amount,desc`) |
+
+```bash
+curl "http://localhost:8080/transactions/GROCERIES?page=0&size=5&sort=amount,desc"
+```
+
+#### `GET /transactions?start={AAAA-MM-DD}&end={AAAA-MM-DD}`
+
+```bash
+curl "http://localhost:8080/transactions?start=2026-07-01&end=2026-07-31&page=0&size=10&sort=createdAt,desc"
+```
+
+#### `POST /transactions`
+
+```bash
+curl -i -X POST http://localhost:8080/transactions -H "Content-Type: application/json" \
+  -d '{"description":"Compras no mercado","category":"GROCERIES","amount":5000}'
+```
+
+**Resposta:**
+```
+HTTP/1.1 201 Created
+Location: http://localhost:8080/transactions/3fa85f64-5717-4562-b3fc-2c963f66afa6
+Content-Type: application/json
+
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "category": "GROCERIES",
+  "description": "Compras no mercado",
+  "amount": 50.00
+}
+```
+
 ## 🎓 Aprendizados do módulo
 
 Este projeto foi construído de forma incremental ao longo do bootcamp, cobrindo:

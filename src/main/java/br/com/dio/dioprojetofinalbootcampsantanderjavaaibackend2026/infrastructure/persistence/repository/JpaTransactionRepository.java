@@ -5,6 +5,8 @@ import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.Trans
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.TransactionId;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.TransactionRepository;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.persistence.entity.TransactionEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -26,11 +28,9 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public List<Transaction> findAllByCategory(Category category) {
-        return transactionEntityRepository.findAllByCategory(category)
-                .stream()
-                .map(TransactionEntity::toDomain)
-                .toList();
+    public Page<Transaction> findAllByCategory(Category category, Pageable pageable) {
+        return transactionEntityRepository.findAllByCategory(category, pageable)
+                .map(TransactionEntity::toDomain);
     }
 
     @Override
@@ -42,11 +42,9 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public List<Transaction> findAllByCreatedAtBetween(Instant start, Instant end) {
-        return transactionEntityRepository.findAllByCreatedAtBetween(start, end)
-                .stream()
-                .map(TransactionEntity::toDomain)
-                .toList();
+    public Page<Transaction> findAllByCreatedAtBetween(Instant start, Instant end, Pageable pageable) {
+        return transactionEntityRepository.findAllByCreatedAtBetween(start, end, pageable)
+                .map(TransactionEntity::toDomain);
     }
 
     @Override

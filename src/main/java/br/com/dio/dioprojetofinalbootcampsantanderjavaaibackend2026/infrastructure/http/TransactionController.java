@@ -13,9 +13,12 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -68,10 +71,16 @@ public class TransactionController {
 
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse createTransaction(@Valid @RequestBody TransactionRequest request) {
-        var transaction = persistTransactionUseCase.execute(request.toInput());
-        return TransactionResponse.from(transaction);
+    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
+        var output = persistTransactionUseCase.execute(request.toInput());
+        var response = TransactionResponse.from(output);
+
+        var location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping("/{category}")
@@ -116,5 +125,10 @@ public class TransactionController {
     @GetMapping
     public List<TransactionResponse> readTransactionsByPeriod(@RequestParam String start, @RequestParam String end) {
         return listTransactionsByPeriodUseCase.execute(start, end).stream().map(TransactionResponse::from).toList();
+    }
+
+    @GetMapping("/{category}")
+    public Page<TransactionResponse> readByCategory(@PathVariable Category category, Pageable pageable) {
+        return listTransactionsByCategoryUseCase.execute(category, pageable).map(TransactionResponse::from);
     }
 }

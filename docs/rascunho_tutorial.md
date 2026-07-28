@@ -142,3 +142,15 @@ além de um tratamento central de erros que padroniza as respostas quando algo �
 - 8 - Usar a exceção no "UpdateTransactionCategoryUseCase" e no "DeleteTransactionUseCase", substituindo o IllegalArgumentException 
 - 9 - Criar "GlobalExceptionHandler" \
 --Feito Commit--
+### Melhoria E: Endpoints REST
+**E.1 - Paginação nos endpoints de listagem**
+**E.2 - "Location" header e status code corretos na criação**
+**E.3 - Ordenação configurável
+- 1 - Domínio (TransactionRepository.java) — tricar o retorno List<Transaction> por Page<Transaction> nos métodos de listagem
+- 2 - Infraestrutura (TransactionEntityRepository.java) — como já extends CrudRepository, basta trocar a assinatura pra aceitar Pageable e retornar Page
+- 3 - JpaTransactionRepository.java — o .map() de conversão continua igual, só que agora em cima de Page (que também tem .map(), igual List/Stream
+- 4 - Use cases (ListTransactionsByCategoryUseCase, ListTransactionsByPeriodUseCase) — recebem Pageable como parâmetro adicional e repassam pro repositório.
+- 5 - Infraestrutura (TransactionEntityRepository.java) — como já extends CrudRepository, basta trocar a assinatura pra aceitar Pageable e retornar Page
+- 6 - Controller — receba Pageable como parâmetro do endpoint (o Spring MVC já sabe extrair isso da query string automaticamente, tipo ?page=0&size=10
+- 7 - Location header. É uma mudança pequena, só no TransactionController, no método createTransaction \
+--Feito Commit--
