@@ -86,7 +86,7 @@
 --Feito Commit--
 ### MELHORIAS
 #### Melhoria A: Novos tipos de consulta financeira
-**A.1 - Somatório por categoria/período — GET /transactions/summary?category=GROCERIES&month=2026-07 retornando total gasto. É só um SUM novo no TransactionRepository + endpoint. (pequeno)** \
+**A.1 - Somatório por categoria/período — GET /transactions/summary?category=GROCERIES&month=2026-07 retornando total gasto. É só um SUM novo no TransactionRepository + endpoint. (pequeno)**
 **A.2 - Listar por intervalo de valor ou data — ex. "quanto gastei essa semana?" — exige adicionar createdAt na entidade (hoje não existe). (pequeno/médio)** \
 **A.3 - Nova tool sumTransactionsByCategory — assim o assistente de voz responde "você gastou R$120 em farmácia este mês" sem você perguntar via REST. (pequeno, reaproveita o padrão que já existe em ListTransactionsByCategoryUseCase)** 
 - 1 - Adicionar em "Transaction" o campo "Instant createdAT"
@@ -106,4 +106,39 @@
 **B.2 - Adicionar config do chat "temperature" para que as respostas fiquem mais padronizadas, previsíveis e "enxutas"**
 - 1 - Reescrever o "system-message.st"
 - 2 - Adicionar config "spring.ai.openai.chat.options.temperature=0.2" \
+--Feito Commit--
+#### Melhoria C: Novas Tools Calling
+**C.1 — deleteTransactionUseCase — apagar uma transação** \
+**C.2 — updateTransactionCategoryUseCase — corrigir a categoria de uma transação** \
+**C.3 — listTransactionsByPeriodUseCase — consultar por período (sem filtrar categoria)**
+- 1 - Domínio (TransactionRepository.java) — adicionar metodo "deletebyId"
+- 2 - Adicionar metodo "deleteById" em "jpatransaction...."
+- 3 - Criar caso de uso "DeleteTransactionUseCase"
+- 4 - Adicionar "DeleteMapping" em controller
+- 5 - Registrar a tool e injetar o use case "DeleteTransaction...." na classe controller
+- 6 - Adicionar em repository o "optional....findById"
+- 7 - Adicionar metodo "findById" em "jpa...repository"
+- 8 - Adicionar metodo "withCategory" em transaction
+- 9 - Criar novo caso de uso "UpdateTransactionCategoryUseCase"
+- 10 - Adicionar endpoint "patchmapping"
+- 11 - Injetar a classe "UpdateTransaction....." no controller
+- 12 - Criar método "findAllByCreatedAtBetween" em "TransactionRepository"
+- 13 - Criar método "findAllByCreatedAtBetween" em "JpaRepository....."
+- 14 - Criar caso de uso "ListTransactionsByPeriodUseCase"
+- 15 - Criar "readTransactionsByPeriod" no controller
+- 16 - Injetar a classe "ListTransactionsByPeriodUseCase" no controller \
+--Feito Commit--
+### Melhoria D: Validações antes de salvar uma transação
+**D.1 - Impedir que dado errado entre no sistema usando validação automática do Spring (Bean Validation) 
+em todos os pontos de entrada — tanto na criação de transação via REST quanto via assistente de voz — 
+além de um tratamento central de erros que padroniza as respostas quando algo é inválido ou não encontrado**
+- 1 - Adicionar dependência Bean Validation "starter-validation"
+- 2 - Anotar "TransactionRequest" com "NotBlank" / "NotNull" / "Positive"
+- 3 - Ativar validação no controller com @Valid
+- 4 - Anotar @NotBlank e @Positive em "PersistTransactionInput"
+- 5 - Injetar "validator" em "PersistTransactionUseCase....." e incrementar método execute da classe com validator
+- 6 - Tratar id inválido/inexistente - trocar @PathVariable String id por @PathVariable UUID id) nos endpoints de DELETE e PATCH
+- 7 - Criar "TransactionNotFoundException"
+- 8 - Usar a exceção no "UpdateTransactionCategoryUseCase" e no "DeleteTransactionUseCase", substituindo o IllegalArgumentException 
+- 9 - Criar "GlobalExceptionHandler" \
 --Feito Commit--

@@ -1,12 +1,12 @@
 package br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.http;
 
-import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.ListTransactionsByCategoryUseCase;
-import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.PersistTransactionUseCase;
-import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.SumTransactionsByCategoryUseCase;
+import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.ListTransactionsByPeriodUseCase;
+import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.*;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.output.TransactionSummaryOutput;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.Category;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.http.request.TransactionRequest;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.http.response.TransactionResponse;
+import jakarta.validation.Valid;
 import org.springframework.ai.audio.transcription.TranscriptionModel;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.chat.client.ChatClient;
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/transactions")
@@ -28,6 +29,9 @@ public class TransactionController {
     private final PersistTransactionUseCase persistTransactionUseCase;
     private final ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase;
     private final SumTransactionsByCategoryUseCase sumTransactionsByCategoryUseCase;
+    private final DeleteTransactionUseCase deleteTransactionUseCase;
+    private final UpdateTransactionCategoryUseCase updateTransactionCategoryUseCase;
+    private final ListTransactionsByPeriodUseCase listTransactionsByPeriodUseCase;
 
     private final TranscriptionModel transcriptionModel;
     private final ChatClient chatClient;
@@ -35,9 +39,13 @@ public class TransactionController {
     private final TextToSpeechModel textToSpeechModel;
 
 
+
     public TransactionController(PersistTransactionUseCase persistTransactionUseCase,
                                  ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase,
                                  SumTransactionsByCategoryUseCase sumTransactionsByCategoryUseCase,
+                                 DeleteTransactionUseCase deleteTransactionUseCase,
+                                 UpdateTransactionCategoryUseCase updateTransactionCategoryUseCase,
+                                 ListTransactionsByPeriodUseCase listTransactionsByPeriodUseCase,
                                  TranscriptionModel transcriptionModel,
                                  @Value("classpath:prompts/system-message.st") Resource systemPrompt,
                                  ChatClient.Builder chatClientBuilder,
@@ -45,10 +53,14 @@ public class TransactionController {
         this.persistTransactionUseCase = persistTransactionUseCase;
         this.listTransactionsByCategoryUseCase = listTransactionsByCategoryUseCase;
         this.sumTransactionsByCategoryUseCase = sumTransactionsByCategoryUseCase;
+        this.deleteTransactionUseCase = deleteTransactionUseCase;
+        this.updateTransactionCategoryUseCase = updateTransactionCategoryUseCase;
+        this.listTransactionsByPeriodUseCase = listTransactionsByPeriodUseCase;
         this.transcriptionModel = transcriptionModel;
         this.chatClient = chatClientBuilder
                 .defaultSystem(systemPrompt.getContentAsString(Charset.defaultCharset()))
-                .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase, sumTransactionsByCategoryUseCase)
+                .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase, sumTransactionsByCategoryUseCase,
+                        deleteTransactionUseCase, updateTransactionCategoryUseCase, listTransactionsByPeriodUseCase)
                 .build();
         this.textToSpeechModel = textToSpeechModel;
 
@@ -57,7 +69,7 @@ public class TransactionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse createTransaction(@RequestBody TransactionRequest request) {
+    public TransactionResponse createTransaction(@Valid @RequestBody TransactionRequest request) {
         var transaction = persistTransactionUseCase.execute(request.toInput());
         return TransactionResponse.from(transaction);
     }
@@ -88,5 +100,21 @@ public class TransactionController {
     public TransactionSummaryOutput summary(@RequestParam Category category,
                                             @RequestParam String month) {
         return sumTransactionsByCategoryUseCase.execute(category, YearMonth.parse(month));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTransaction(@PathVariable UUID id) {
+        deleteTransactionUseCase.execute(id.toString());
+    }
+
+    @PatchMapping("/{id}/category")
+    public TransactionResponse updateCategory(@PathVariable UUID id, @RequestBody Category category) {
+        return TransactionResponse.from(updateTransactionCategoryUseCase.execute(id.toString(), category));
+    }
+
+    @GetMapping
+    public List<TransactionResponse> readTransactionsByPeriod(@RequestParam String start, @RequestParam String end) {
+        return listTransactionsByPeriodUseCase.execute(start, end).stream().map(TransactionResponse::from).toList();
     }
 }

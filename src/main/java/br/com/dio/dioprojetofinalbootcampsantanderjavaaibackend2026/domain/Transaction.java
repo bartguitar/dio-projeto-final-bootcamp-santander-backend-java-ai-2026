@@ -22,4 +22,8 @@ public class Transaction {
         this.createdAt = Instant.now();
     }
 
+    public Transaction withCategory(Category newCategory) {
+        return new Transaction(this.id, this.description, this.amount, newCategory, this.createdAt);
+    }
+
 }

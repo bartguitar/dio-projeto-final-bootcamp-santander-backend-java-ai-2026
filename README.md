@@ -250,6 +250,92 @@ Ajustes de configuração (sem novos endpoints) para tornar as respostas do assi
 - **B.1 — Prompt estruturado:** o `system-message.st` passou a orientar explicitamente o formato da resposta final do assistente, com exemplos literais de frase para cada tipo de ação (registro e consulta), além de uma instrução para nunca inventar valores ou categorias quando a fala do usuário for ambígua.
 - **B.2 — Temperature baixa:** adicionada a configuração `spring.ai.openai.chat.options.temperature=0.2`, reduzindo a variação criativa nas respostas — importante para um
 
+### Melhoria C — Novas *tools* de Tool Calling
+
+Expande as ações que o assistente (por voz ou texto) consegue executar sobre uma transação, indo além de registrar e listar: agora também é possível corrigir e excluir dados, e consultar por período sem depender de categoria.
+
+**O que mudou:**
+
+- **C.1 — Excluir transação:** nova tool `delete-transaction` e endpoint `DELETE /transactions/{id}`, para remover um lançamento feito por engano.
+- **C.2 — Corrigir categoria:** nova tool `update-transaction-category` e endpoint `PATCH /transactions/{id}/category`, para corrigir a classificação de uma transação já registrada sem precisar apagá-la e recriá-la.
+- **C.3 — Consultar por período:** nova tool `list-transactions-by-period` e endpoint `GET /transactions?start=...&end=...`, para listar todas as transações de qualquer categoria dentro de um intervalo de datas.
+
+#### `DELETE /transactions/{id}`
+
+```bash
+curl -X DELETE http://localhost:8080/transactions/3fa85f64-5717-4562-b3fc-2c963f66afa6
+```
+Retorna `204 No Content` em caso de sucesso.
+
+#### `PATCH /transactions/{id}/category`
+
+```bash
+curl -X PATCH http://localhost:8080/transactions/3fa85f64-5717-4562-b3fc-2c963f66afa6/category \
+  -H "Content-Type: application/json" \
+  -d '"PHARMA"'
+```
+
+#### `GET /transactions?start={AAAA-MM-DD}&end={AAAA-MM-DD}`
+
+```bash
+curl "http://localhost:8080/transactions?start=2026-07-01&end=2026-07-31"
+```
+
+#### Tools de IA
+
+As três ações acima também estão disponíveis para o assistente de voz via `POST /transactions/ai`, registradas no `ChatClient` junto às demais ferramentas:
+
+| Tool | Função |
+|---|---|
+| `delete-transaction` | Exclui uma transação pelo identificador |
+| `update-transaction-category` | Corrige a categoria de uma transação já registrada |
+| `list-transactions-by-period` | Lista transações de qualquer categoria dentro de um intervalo de datas |
+
+> A exclusão e a correção de categoria por voz funcionam melhor quando o identificador da transação está disponível no contexto recente da conversa (por exemplo, logo após o assistente registrar ou listar a transação) — o usuário não costuma saber o UUID de cor.
+
+### Melhoria D — Validações antes de salvar uma transação
+
+Impede que dado inválido entre no sistema, usando validação automática do Spring (Bean Validation) em todos os pontos de entrada — tanto na criação de transação via REST quanto via assistente de voz — além de um tratamento central de erros que padroniza as respostas quando algo é inválido ou não é encontrado.
+
+**O que mudou:**
+
+- **Validação na porta REST:** `TransactionRequest` passou a exigir descrição não vazia, categoria informada e valor positivo. Requisições inválidas são recusadas antes de chegar à camada de aplicação.
+- **Validação na porta de IA:** `PersistTransactionInput` recebeu as mesmas regras, validadas manualmente dentro de `PersistTransactionUseCase` — garantindo que uma transcrição de áudio ambígua não gere uma transação inconsistente.
+- **Tratamento de identificador inválido:** os endpoints `DELETE /transactions/{id}` e `PATCH /transactions/{id}/category` passaram a receber `UUID` em vez de `String` no path, rejeitando automaticamente qualquer id mal formatado.
+- **Tratamento de identificador inexistente:** criada a exceção de domínio `TransactionNotFoundException`, lançada quando um id válido não corresponde a nenhuma transação salva.
+- **`GlobalExceptionHandler`:** centraliza a tradução de todas essas exceções em respostas HTTP padronizadas, no formato [`ProblemDetail`](https://datatracker.ietf.org/doc/html/rfc9457) (RFC 9457), com status code e mensagem apropriados — em vez de stacktraces expostos ao cliente.
+
+**Antes:**
+> Uma transação com descrição vazia era salva normalmente. Um id inexistente ou mal formatado gerava um erro 500 genérico.
+
+**Depois:**
+
+| Cenário | Status | Resposta |
+|---|---|---|
+| Descrição vazia ou valor ≤ 0 | `400 Bad Request` | JSON com a lista de campos inválidos |
+| Id em formato inválido (não-UUID) | `400 Bad Request` | JSON informando o parâmetro inválido |
+| Id válido, mas transação inexistente | `404 Not Found` | JSON com a mensagem "Transação não encontrada" |
+| Dado inválido vindo do assistente de voz | `400 Bad Request` | JSON com o detalhe da violação |
+
+```bash
+curl -i -X POST http://localhost:8080/transactions -H "Content-Type: application/json" \
+  -d '{"description": "", "category": "GROCERIES", "amount": -10}'
+```
+
+```json
+{
+  "type": "about:blank",
+  "title": "Dados inválidos",
+  "status": 400,
+  "errors": [
+    "description: A descrição é obrigatória",
+    "amount: O valor deve ser maior que zero"
+  ]
+}
+```
+
+Essa melhoria não adiciona endpoints novos — o efeito é observado como uma camada de proteção sobre os endpoints já existentes (`POST /transactions`, `DELETE /transactions/{id}`, `PATCH /transactions/{id}/category`) e sobre o fluxo de voz (`POST /transactions/ai`).
+
 ## 🎓 Aprendizados do módulo
 
 Este projeto foi construído de forma incremental ao longo do bootcamp, cobrindo:

@@ -2,12 +2,14 @@ package br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastruct
 
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.Category;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.Transaction;
+import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.TransactionId;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.TransactionRepository;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.persistence.entity.TransactionEntity;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class JpaTransactionRepository implements TransactionRepository {
@@ -38,4 +40,23 @@ public class JpaTransactionRepository implements TransactionRepository {
                 .map(TransactionEntity::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<Transaction> findAllByCreatedAtBetween(Instant start, Instant end) {
+        return transactionEntityRepository.findAllByCreatedAtBetween(start, end)
+                .stream()
+                .map(TransactionEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void deleteById(TransactionId id) {
+        transactionEntityRepository.deleteById(id.uuid());
+    }
+
+    @Override
+    public Optional<Transaction> findById(TransactionId id) {
+        return transactionEntityRepository.findById(id.uuid()).map(TransactionEntity::toDomain);
+    }
+
 }
