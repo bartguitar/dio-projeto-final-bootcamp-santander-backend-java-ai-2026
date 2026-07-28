@@ -6,6 +6,7 @@ import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.Trans
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.persistence.entity.TransactionEntity;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -25,6 +26,14 @@ public class JpaTransactionRepository implements TransactionRepository {
     @Override
     public List<Transaction> findAllByCategory(Category category) {
         return transactionEntityRepository.findAllByCategory(category)
+                .stream()
+                .map(TransactionEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Transaction> findAllByCategoryAndCreatedAtBetween(Category category, Instant start, Instant end) {
+        return transactionEntityRepository.findAllByCategoryAndCreatedAtBetween(category, start, end)
                 .stream()
                 .map(TransactionEntity::toDomain)
                 .toList();

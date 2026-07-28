@@ -2,6 +2,8 @@ package br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastruct
 
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.ListTransactionsByCategoryUseCase;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.PersistTransactionUseCase;
+import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.SumTransactionsByCategoryUseCase;
+import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.application.output.TransactionSummaryOutput;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.domain.Category;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.http.request.TransactionRequest;
 import br.com.dio.dioprojetofinalbootcampsantanderjavaaibackend2026.infrastructure.http.response.TransactionResponse;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -24,6 +27,7 @@ import java.util.List;
 public class TransactionController {
     private final PersistTransactionUseCase persistTransactionUseCase;
     private final ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase;
+    private final SumTransactionsByCategoryUseCase sumTransactionsByCategoryUseCase;
 
     private final TranscriptionModel transcriptionModel;
     private final ChatClient chatClient;
@@ -33,16 +37,18 @@ public class TransactionController {
 
     public TransactionController(PersistTransactionUseCase persistTransactionUseCase,
                                  ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase,
+                                 SumTransactionsByCategoryUseCase sumTransactionsByCategoryUseCase,
                                  TranscriptionModel transcriptionModel,
                                  @Value("classpath:prompts/system-message.st") Resource systemPrompt,
                                  ChatClient.Builder chatClientBuilder,
                                  TextToSpeechModel textToSpeechModel) throws IOException {
         this.persistTransactionUseCase = persistTransactionUseCase;
         this.listTransactionsByCategoryUseCase = listTransactionsByCategoryUseCase;
+        this.sumTransactionsByCategoryUseCase = sumTransactionsByCategoryUseCase;
         this.transcriptionModel = transcriptionModel;
         this.chatClient = chatClientBuilder
                 .defaultSystem(systemPrompt.getContentAsString(Charset.defaultCharset()))
-                .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase)
+                .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase, sumTransactionsByCategoryUseCase)
                 .build();
         this.textToSpeechModel = textToSpeechModel;
 
@@ -76,5 +82,11 @@ public class TransactionController {
                                 .build()
                                 .toString())
                 .body(resource);
+    }
+
+    @GetMapping("/summary")
+    public TransactionSummaryOutput summary(@RequestParam Category category,
+                                            @RequestParam String month) {
+        return sumTransactionsByCategoryUseCase.execute(category, YearMonth.parse(month));
     }
 }

@@ -84,3 +84,21 @@
 - 11.6 - Injetar variavel "textToSpeechModel" em controller
 - 11.7 - Teste completo da aplicação \
 --Feito Commit--
+### MELHORIAS
+#### Melhoria A:
+##### Novos tipos de consulta financeira
+**A.1 - Somatório por categoria/período — GET /transactions/summary?category=GROCERIES&month=2026-07 retornando total gasto. É só um SUM novo no TransactionRepository + endpoint. (pequeno)** \
+**A.2 - Listar por intervalo de valor ou data — ex. "quanto gastei essa semana?" — exige adicionar createdAt na entidade (hoje não existe). (pequeno/médio)** \
+**A.3 - Nova tool sumTransactionsByCategory — assim o assistente de voz responde "você gastou R$120 em farmácia este mês" sem você perguntar via REST. (pequeno, reaproveita o padrão que já existe em ListTransactionsByCategoryUseCase)** 
+- 1 - Adicionar em "Transaction" o campo "Instant createdAT"
+- 2 - Adicionar em "TransacationEntity" o "createdAT"
+- 3 - Adicionar lista "findAllByCategoryAndCreatedAtBetween" em "TransactionRepository"
+- 4 - Adicionar lista do tópico acima "findAllByCategoryAndCreatedAtBetween" no "TransactionEntityRepository"
+- 5 - Adicionar metodo "findAllByCategoryAndCreatedAtBetween" em "JpaTransactionRepository"
+- 6 - Criar classe/caso de uso "SumTransactionsByCategoryUseCase"
+- 7 - Criar classe record "TransactionSummaryOutput"
+- 8 - Injetar SumTransactionsByCategoryUseCase na classe "TransactionController"
+- 9 - Colocar endpoint "/summary" no "TransactionController"
+- 10 - Nova tool "sum-transactions-by-category", anotar o método execute do SumTransactionsByCategoryUseCase com @Tool
+- 11 - Atualizar o "system-message.st" \
+--Feito Commit--
