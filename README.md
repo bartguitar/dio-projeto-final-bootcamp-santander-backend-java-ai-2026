@@ -384,6 +384,98 @@ Content-Type: application/json
   "amount": 50.00
 }
 ```
+### Melhoria F — Testes dos fluxos principais
+
+Adiciona cobertura de testes automatizados para a lógica mais sensível do projeto — validação de dados e regras de negócio — complementando os testes de integração de IA que já existiam (`*IT.java`, dependentes de `OPENAI_API_KEY`). O foco aqui é o oposto: testes **rápidos, determinísticos e isolados**, que rodam em qualquer máquina ou pipeline de CI sem precisar de banco de dados real nem de chave de API.
+
+#### Estratégia de testes
+
+O projeto passa a ter duas camadas de teste, com propósitos diferentes:
+
+| Camada | Exemplo | Depende de | Quando roda |
+|---|---|---|---|
+| Testes de integração de IA (já existentes) | `ToolCallingIT`, `OpenAiChatClientIT` | `OPENAI_API_KEY`, rede | Sob demanda, ambiente com credenciais |
+| **Testes unitários e de controller (Melhoria F)** | `PersistTransactionUseCaseTest`, `TransactionControllerTest` | Nada externo (tudo mockado) | Toda execução de `./gradlew test`, inclusive CI |
+
+Essa separação segue a lógica da **pirâmide de testes**: a maior parte da cobertura vem de testes rápidos e isolados (unitários), enquanto os testes de integração — mais lentos e caros — ficam reservados para validar a integração real com serviços externos.
+
+#### F.1 — Testes unitários dos use cases
+
+Usam **JUnit 5 + Mockito**, simulando o `TransactionRepository` (interface de domínio) para testar a regra de negócio isoladamente, sem tocar em banco de dados.
+
+| Classe de teste | Casos cobertos |
+|---|---|
+| `PersistTransactionUseCaseTest` | Persistência de transação válida; rejeição de descrição vazia; rejeição de valor negativo |
+| `DeleteTransactionUseCaseTest` | Exclusão de transação existente; exceção ao excluir transação inexistente |
+| `UpdateTransactionCategoryUseCaseTest` | Atualização de categoria válida; exceção ao atualizar transação inexistente |
+
+Exemplo representativo (`PersistTransactionUseCaseTest`):
+
+```java
+@Test
+void deveRejeitarTransacaoComValorNegativo() {
+    var input = new PersistTransactionInput("Mercado", -100, Category.GROCERIES);
+
+    assertThatThrownBy(() -> useCase.execute(input))
+            .isInstanceOf(ConstraintViolationException.class);
+}
+```
+
+O `Validator` usado nesses testes é a implementação real do Jakarta Validation (não mockada) — garantindo que as anotações `@NotBlank`/`@Positive` (Melhoria D) sejam exercitadas de verdade, e não simuladas.
+
+#### F.2 — Testes do controller REST
+
+Usam `@WebMvcTest` + `MockMvc`, que sobem **só a camada web** (controller, validação de `@RequestBody` e `GlobalExceptionHandler`), sem subir o contexto Spring completo nem conexão com banco — todas as dependências do `TransactionController` (use cases e os três beans de IA) são substituídas por `@MockitoBean`.
+
+| Cenário testado | Verificação |
+|---|---|
+| Criação de transação válida | `201 Created`, presença do header `Location`, corpo com os dados persistidos |
+| Criação de transação inválida | `400 Bad Request`, corpo com lista de campos inválidos |
+| Exclusão de transação inexistente | `404 Not Found` |
+| Identificador em formato inválido (não-UUID) | `400 Bad Request` |
+
+Exemplo representativo (`TransactionControllerTest`):
+
+```java
+@Test
+void deveCriarTransacaoComSucesso() throws Exception {
+    var output = new TransactionOutput("123", "Mercado", "GROCERIES", 50.0);
+    when(persistTransactionUseCase.execute(any())).thenReturn(output);
+
+    mockMvc.perform(post("/transactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {"description": "Mercado", "category": "GROCERIES", "amount": 5000}
+                            """))
+            .andExpect(status().isCreated())
+            .andExpect(header().exists("Location"))
+            .andExpect(jsonPath("$.description").value("Mercado"));
+}
+```
+
+#### Por que essa cobertura, e não outra
+
+Os testes concentram-se deliberadamente nos fluxos que mais mudaram nas melhorias anteriores:
+
+- **Validação de dados** (Melhoria D) — garante que descrição vazia, valor negativo ou categoria ausente continuem sendo rejeitados, tanto pela porta REST quanto pela porta de tool calling, à medida que o código evolui.
+- **Tratamento de erros** (`GlobalExceptionHandler`) — garante que identificadores inválidos ou inexistentes continuem retornando respostas HTTP padronizadas (`400`/`404`), em vez de stacktraces.
+
+Ficaram fora do escopo (por decisão consciente, priorizando um conjunto pequeno e funcional): testes de paginação/ordenação (Melhoria E), testes de exclusão/edição bem-sucedida via `MockMvc` e testes end-to-end do fluxo de voz completo — esse último já é parcialmente coberto pelos testes de integração de IA existentes no projeto.
+
+#### Como rodar
+
+```bash
+# Roda toda a suíte de testes
+./gradlew test
+
+# Roda só os testes desta melhoria
+./gradlew test --tests "*PersistTransactionUseCaseTest" \
+                --tests "*DeleteTransactionUseCaseTest" \
+                --tests "*UpdateTransactionCategoryUseCaseTest" \
+                --tests "*TransactionControllerTest"
+```
+
+Diferente dos testes `*IT.java` (que exigem `OPENAI_API_KEY` configurada), os testes desta melhoria rodam de forma totalmente isolada — o que os torna adequados para rodar automaticamente em um pipeline de CI, a cada push, sem necessidade de segredos ou credenciais externas.
 
 ## 🎓 Aprendizados do módulo
 

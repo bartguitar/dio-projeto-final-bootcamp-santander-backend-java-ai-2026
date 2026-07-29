@@ -145,7 +145,7 @@ além de um tratamento central de erros que padroniza as respostas quando algo �
 ### Melhoria E: Endpoints REST
 **E.1 - Paginação nos endpoints de listagem**
 **E.2 - "Location" header e status code corretos na criação**
-**E.3 - Ordenação configurável
+**E.3 - Ordenação configurável**
 - 1 - Domínio (TransactionRepository.java) — tricar o retorno List<Transaction> por Page<Transaction> nos métodos de listagem
 - 2 - Infraestrutura (TransactionEntityRepository.java) — como já extends CrudRepository, basta trocar a assinatura pra aceitar Pageable e retornar Page
 - 3 - JpaTransactionRepository.java — o .map() de conversão continua igual, só que agora em cima de Page (que também tem .map(), igual List/Stream
@@ -153,4 +153,14 @@ além de um tratamento central de erros que padroniza as respostas quando algo �
 - 5 - Infraestrutura (TransactionEntityRepository.java) — como já extends CrudRepository, basta trocar a assinatura pra aceitar Pageable e retornar Page
 - 6 - Controller — receba Pageable como parâmetro do endpoint (o Spring MVC já sabe extrair isso da query string automaticamente, tipo ?page=0&size=10
 - 7 - Location header. É uma mudança pequena, só no TransactionController, no método createTransaction \
+--Feito Commit--
+### Melhoria F: Testes dos fluxos principais
+**F.1 - Testes unitários dos use cases** \
+Ideia central: mockar o TransactionRepository (não bater em banco real) e testar só a regra de negócio de cada use case — sucesso e principais casos de erro. \
+**F.2 — Testes do controller REST (MockMvc)** \
+Ideia central: subir só a camada web (@WebMvcTest), sem banco, sem contexto Spring completo, testando o comportamento HTTP observável — status code, corpo da resposta, headers.
+- 1 - Criar classe "PersistTransactionUseCaseTest" / "DeleteTransactionUseCaseTest" / "UpdateTransactionCategoryUseCaseTest"
+- 2 - Reorganizar as classes e pacotes de testes
+- 3 - Criar classe "TransactionControllerTest"
+- 4 - Adicionar dependência testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test' \
 --Feito Commit--
