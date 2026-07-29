@@ -163,4 +163,8 @@ Ideia central: subir só a camada web (@WebMvcTest), sem banco, sem contexto Spr
 - 2 - Reorganizar as classes e pacotes de testes
 - 3 - Criar classe "TransactionControllerTest"
 - 4 - Adicionar dependência testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test' \
+--Feito Commit-- \
+**---PS---**
+- Erro na classe "TransactionController" foi preciso excluir o metodo obsoleto "readTransactions" , dando conflito com
+"readByCategory" no endereço do endpoint. \
 --Feito Commit--

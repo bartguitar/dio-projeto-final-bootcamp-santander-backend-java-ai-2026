@@ -83,11 +83,6 @@ public class TransactionController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @GetMapping("/{category}")
-    public List<TransactionResponse> readTransactions(@PathVariable Category category) {
-        return listTransactionsByCategoryUseCase.execute(category).stream().map(TransactionResponse::from).toList();
-    }
-
     @PostMapping(value = "/ai", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "audio/mp3")
     ResponseEntity<Resource> transcribe(@RequestParam("file") MultipartFile file) {
         var userMessage = transcriptionModel.transcribe(file.getResource());
