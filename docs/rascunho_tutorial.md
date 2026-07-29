@@ -168,3 +168,8 @@ Ideia central: subir só a camada web (@WebMvcTest), sem banco, sem contexto Spr
 - Erro na classe "TransactionController" foi preciso excluir o metodo obsoleto "readTransactions" , dando conflito com
 "readByCategory" no endereço do endpoint. \
 --Feito Commit--
+### Melhoria G: Documentação da API
+**G.1 - Swagger UI via springdoc-openapi (documentação interativa, gerada automaticamente)**
+- 1 - Adicionar dependência implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+- 2 - Testar em http://localhost:8080/swagger-ui.html \
+--Feito Commit--

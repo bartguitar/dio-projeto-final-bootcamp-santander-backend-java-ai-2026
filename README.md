@@ -477,6 +477,25 @@ Ficaram fora do escopo (por decisão consciente, priorizando um conjunto pequeno
 
 Diferente dos testes `*IT.java` (que exigem `OPENAI_API_KEY` configurada), os testes desta melhoria rodam de forma totalmente isolada — o que os torna adequados para rodar automaticamente em um pipeline de CI, a cada push, sem necessidade de segredos ou credenciais externas.
 
+### Melhoria G — Documentação da API
+
+Adiciona documentação interativa e sempre atualizada da API, gerada automaticamente a partir do código, usando [springdoc-openapi](https://springdoc.org/).
+
+**O que mudou:**
+
+- Adicionada a dependência `springdoc-openapi-starter-webmvc-ui`, que expõe automaticamente um Swagger UI com todos os endpoints do `TransactionController` — método HTTP, parâmetros e corpo esperado — sem exigir anotação manual em cada endpoint.
+
+**Como acessar:**
+
+Com a aplicação em execução, acesse:
+```
+http://localhost:8080/swagger-ui.html
+```
+
+A partir dali é possível visualizar e testar diretamente pelo navegador todos os endpoints de transações (criação, listagem paginada, somatório, atualização de categoria, exclusão).
+
+> O endpoint `POST /transactions/ai` também aparece documentado, mas por lidar com upload de arquivo (`multipart/form-data`) e resposta em áudio binário (`audio/mp3`), seu teste funciona melhor via `curl` do que pela interface do Swagger — os exemplos `curl` de cada endpoint estão disponíveis ao longo desta seção "Melhorias implementadas".
+
 ## 🎓 Aprendizados do módulo
 
 Este projeto foi construído de forma incremental ao longo do bootcamp, cobrindo:
